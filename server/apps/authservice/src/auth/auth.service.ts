@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { LoginDTO } from './dto/login.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { User, UserDocument } from './schema/user.schema';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class AuthService {
-    private database: any[];
-
-    constructor() {
-        this.database = [{login: 'kuba', password: 'password'}];
+    constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {
     }
 
-    login(loginDTO: LoginDTO) {
-        const user = this.database.find(item => item.login === loginDTO.login);
+    async login(loginDTO: LoginDTO) {
+        const user = await this.userModel.findOne({login: loginDTO.login}).exec();
         if (user && user.password === loginDTO.password)
             return {status: "SUCCESSFUL", token: "abc"};
         return {status: "FAILED", message: "User not found"}
@@ -18,7 +18,6 @@ export class AuthService {
 
     register(loginDTO: LoginDTO) {
         if(loginDTO.login !== '' && loginDTO.password !== '') {
-            this.database.push(loginDTO);
             return {status: "SUCCESSFUL", token: "abc"};
         }
         return {status: "FAILED", message: "Invalid data"}

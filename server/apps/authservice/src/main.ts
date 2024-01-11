@@ -1,12 +1,17 @@
 import { NestFactory } from '@nestjs/core';
-import { AuthModule } from './auth/auth.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import * as dotenv from 'dotenv';
+import { AuthserviceModule } from './authservice.module';
+dotenv.config();
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
-      AuthModule,
+      AuthserviceModule,
       {
-        transport: Transport.TCP
+        transport: Transport.TCP,
+        options: {
+          port: +process.env.PORT
+        }
       }
   )
   app.listen();
